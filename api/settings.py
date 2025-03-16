@@ -37,7 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Add the following apps to the list of installed apps
     'rest_framework',
+    'auth.apps.AuthConfig',
+    'todo.apps.TodoConfig',
 ]
 
 MIDDLEWARE = [
