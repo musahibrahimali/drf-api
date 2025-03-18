@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Add the following apps to the list of installed apps
     'rest_framework',
+    'django_filters',
     'authentication.apps.AuthenticationConfig',
     'todo.apps.TodoConfig'
 ]
@@ -105,6 +106,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'authentication.jwt.JwtAuthentication',
+    ]
+}
 
 
 # Internationalization

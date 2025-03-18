@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+import jwt
+from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import PermissionsMixin, UserManager
@@ -100,16 +103,27 @@ class User(AbstractBaseUser, PermissionsMixin, TrackingModel):
     objects = MyUserManager()
 
     EMAIL_FIELD = "email"
-    USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ["email"]
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
 
 
     @property
     def token(self):
-        return self._generate_jwt_token()
+        return self.__generate_jwt_token()
 
 
-    @staticmethod
-    def _generate_jwt_token():
-        return 'token'
+    def __generate_jwt_token(self):
+        """
+            Generate a JSON Web Token that can be used to authenticate the user.
+        """
+        token = jwt.encode(
+            {
+                'username':  self.username,
+                'email': self.email,
+                'exp': datetime.now() + timedelta(hours=24)
+            },
+            settings.SECRET_KEY,
+            algorithm='HS256'
+        )
+        return token
 

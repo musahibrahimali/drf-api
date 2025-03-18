@@ -17,9 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from api.views import TodoAPIView
+
 urlpatterns = [
+    ### Default API view
+    path('', TodoAPIView.as_view(), name='TodoAPI'),
+    ### admin site
     path('admin/', admin.site.urls),
-    # Include the authentication app's URLs
-    path('auth/', include('authentication.urls')),
-    path('todo/', include('todo.urls'))
+    #### Auth Views
+    path('api/auth/', include('authentication.urls')),
+    ### Todos Views
+    path('api/todo/', include('todo.urls'))
 ]
