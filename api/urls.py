@@ -15,8 +15,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+
+from api.views import TodoAPIView
 
 urlpatterns = [
+    ### Default API view
+    path('', TodoAPIView.as_view(), name='TodoAPI'),
+    ### admin site
     path('admin/', admin.site.urls),
+    #### Auth Views
+    path('api/auth/', include('authentication.urls')),
+    ### Todos Views
+    path('api/todo/', include('todo.urls'))
 ]

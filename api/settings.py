@@ -25,6 +25,9 @@ SECRET_KEY = 'django-insecure-b)ma$u6(bi1v4^=)hg-w9bm#bjm*zvop&pa92dgvn4*bk1&6_e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# user model
+AUTH_USER_MODEL = 'authentication.User'
+
 ALLOWED_HOSTS = []
 
 
@@ -37,7 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Add the following apps to the list of installed apps
     'rest_framework',
+    'django_filters',
+    'authentication.apps.AuthenticationConfig',
+    'todo.apps.TodoConfig'
 ]
 
 MIDDLEWARE = [
@@ -99,6 +106,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'authentication.jwt.JwtAuthentication',
+    ]
+}
 
 
 # Internationalization
