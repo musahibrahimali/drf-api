@@ -9,7 +9,7 @@ class TodoAPIView(GenericAPIView, APIResponseMixin):
         Home API View.
     """
     authentication_classes = []
-    def get(self, request):
+    def get(self, request) -> APIResponseMixin.api_response:
         """
         Get the Home page.
         """
@@ -17,9 +17,11 @@ class TodoAPIView(GenericAPIView, APIResponseMixin):
         return self.api_response(
             data={'message': message},
             message="Welcome home",
-            status_code=status.HTTP_200_OK
+            status_code=status.HTTP_200_OK,
+            success=True,
+            meta=None,
         )
 
     @staticmethod
-    def get_welcome_message():
+    def get_welcome_message() -> str:
         return "Hello, and welcome to the Todo API!"

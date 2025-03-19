@@ -11,10 +11,11 @@ class APIResponseMixin:
 
     @staticmethod
     def api_response(
-        data=None,
-        message="",
-        success=True,
-        status_code=status.HTTP_200_OK
+        data:any=None,
+        message:str="",
+        success:bool=True,
+        status_code:any=status.HTTP_200_OK,
+        meta: dict = None,
     ) -> Response:
         """
             Returns a standard JSON response format.
@@ -23,14 +24,18 @@ class APIResponseMixin:
             :param message: A string message
             :param success: A boolean indicating success or failure
             :param status_code: The HTTP status code
+            :param meta: A dictionary containing metadata
             :return: A DRF Response object
         """
         response_structure = {
             "success": success,
             "message": message,
-            "data": data
+            "data": data,
+            'meta': meta,
         }
         return Response(response_structure, status=status_code)
+
+
 
 
 class TrackingModel(models.Model):
