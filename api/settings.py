@@ -43,6 +43,10 @@ INSTALLED_APPS = [
     # Add the following apps to the list of installed apps
     'rest_framework',
     'django_filters',
+    # 'django.contrib.staticfiles',  # required for serving swagger ui's css/js files
+    'drf_yasg',
+
+    ### applications
     'authentication.apps.AuthenticationConfig',
     'todo.apps.TodoConfig'
 ]
@@ -110,7 +114,9 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'authentication.jwt.JwtAuthentication',
-    ]
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
 }
 
 

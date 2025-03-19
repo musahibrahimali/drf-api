@@ -1,10 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status
+from rest_framework import status, filters
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from helpers.models import APIResponseMixin
 from todo.models import Todo
+from todo.pagination import CustomPageNumberPagination
 from todo.serializers import TodoSerializer
 
 class CreateTodoAPIView(CreateAPIView, APIResponseMixin):
@@ -14,7 +15,7 @@ class CreateTodoAPIView(CreateAPIView, APIResponseMixin):
     serializer_class = TodoSerializer
     permission_classes = (IsAuthenticated,)
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs) -> APIResponseMixin.api_response:
         """
             Override the create method to customize the response.
         """
@@ -27,6 +28,7 @@ class CreateTodoAPIView(CreateAPIView, APIResponseMixin):
             message="Todo created successfully",
             status_code=status.HTTP_201_CREATED,
             success=True,
+            meta=None,
         )
 
 
@@ -36,21 +38,47 @@ class TodoListAPIView(ListAPIView, APIResponseMixin):
     """
     serializer_class = TodoSerializer
     permission_classes = (IsAuthenticated,)
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    # pagination_class = CustomPageNumberPagination
 
     filterset_fields = ['id', 'title', 'is_complete']
+    search_fields = ['id', 'title', 'desc', 'is_complete']
+    ordering_fields = ['id', 'title', 'is_complete']
 
-    def get_queryset(self):
+    def get_queryset(self) -> any:
         """
         Return only the todos that belong to the authenticated user.
         """
         return Todo.objects.filter(owner=self.request.user)
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs) -> APIResponseMixin.api_response:
         """
         Custom list method to return todos with API response format.
         """
         queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            # Use self.paginator instead of self
+            next_link = self.paginator.get_next_link() if self.paginator else None
+            previous_link = self.paginator.get_previous_link() if self.paginator else None
+            count = self.paginator.count if self.paginator else queryset.count()
+            meta = {
+                'links': {
+                    'next': next_link,
+                    'previous': previous_link,
+                },
+                'count': count
+            }
+            return self.api_response(
+                data=serializer.data,
+                message="Todos retrieved successfully",
+                status_code=status.HTTP_200_OK,
+                success=True,
+                meta=meta,
+            )
+
         serializer = self.get_serializer(queryset, many=True)
 
         return self.api_response(
@@ -69,13 +97,13 @@ class TodoDetailsAPIView(RetrieveAPIView, APIResponseMixin):
     permission_classes = (IsAuthenticated,)
     lookup_field = 'id'
 
-    def get_queryset(self):
+    def get_queryset(self) -> any:
         """
             Return only the todos that belong to the authenticated user.
         """
         return Todo.objects.filter(owner=self.request.user)
 
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs) -> any:
         """
             Custom retrieve method to return todos with API response format.
         """
@@ -86,7 +114,8 @@ class TodoDetailsAPIView(RetrieveAPIView, APIResponseMixin):
             data=serializer.data,
             message="Todo retrieved successfully",
             status_code=status.HTTP_200_OK,
-            success=True
+            success=True,
+            meta=None
         )
 
 
@@ -117,7 +146,8 @@ class TodoUpdateAPIView(UpdateAPIView, APIResponseMixin):
             data=serializer.data,
             message="Todo updated successfully",
             status_code=status.HTTP_200_OK,
-            success=True
+            success=True,
+            meta=None
         )
 
 class TodoDeleteAPIView(DestroyAPIView, APIResponseMixin):
@@ -145,5 +175,6 @@ class TodoDeleteAPIView(DestroyAPIView, APIResponseMixin):
             data=None,
             message="Todo deleted successfully",
             status_code=status.HTTP_200_OK,
-            success=True
+            success=True,
+            meta=None
         )
